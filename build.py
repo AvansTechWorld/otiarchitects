@@ -42,16 +42,8 @@ def img(f, alt, R, cls='', lazy=True):
     d = dims(f'{S}/assets/images/{f}'); wh = f' width="{d[0]}" height="{d[1]}"' if d else ''
     return f'<img{" class=%s" % chr(34)+cls+chr(34) if cls else ""} src="{R}assets/images/{f}" alt="{E(alt)}"{wh}{" loading=%slazy%s decoding=%sasync%s" % ((chr(34),)*4) if lazy else ""}>'
 EM = site['email']
-from urllib.parse import urlparse
-EP = site.get('formEndpoint', '').strip(); KEY = site.get('formKey', '').strip(); EPO = ''; EPH = ''
-if EP:
-    _u = urlparse(EP)
-    if _u.scheme != 'https' or not _u.netloc: errors.append('content/site.json: formEndpoint must be a full https:// address')
-    else: EPO = f'{_u.scheme}://{_u.netloc}'; EPH = _u.netloc
 MAIL = f'mailto:{EM}?subject=Project%20enquiry&body=Hello%20OTI%20Architects,%0D%0A%0D%0AMy%20name:%0D%0APhone:%0D%0AProject%20type:%0D%0ALocation:%0D%0ADescription:%0D%0A'
 CSP = "default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
-CSP = CSP.replace("connect-src 'none'", 'connect-src ' + (EPO or "'none'"))
-FORMNOTE = (f'If you use the enquiry form, the details you type are sent over a secure connection to our form service ({EPH}), which delivers them to our email inbox. They are used only to reply to you.' if EP else 'The enquiry form on this site does not send anything by itself. It prepares a message that you send from your own email service (Gmail, Outlook or your email app), or copy and paste anywhere.')
 NAV = [('index.html', 'Home'), ('about.html', 'About'), ('index.html#services', 'Services'), ('projects.html', 'Projects'), ('team.html', 'Team'), ('contact.html', 'Contact')]
 pages = []
 def head(title, desc, R, path, home=False):
@@ -68,35 +60,14 @@ def head(title, desc, R, path, home=False):
 def header(R, cur):
     nav = ''.join(f'<a href="{R}{h}"' + (' aria-current="page"' if h == cur else '') + f'>{l}</a>' for h, l in NAV)
     return (f'<header class="top"><div class="wrap bar"><a class="brand" href="{R}index.html" aria-label="{E(site["name"])}, home">{img("logo.png", site["name"] + ", " + site["tagline"], R, lazy=False)}</a>'
-            f'<nav id="nav" class="nav" aria-label="Main">{nav}</nav><a class="btn" href="{MAIL}" data-enquire>Start a project</a><button id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">Menu</button></div></header><main id="main">')
-def dlg():
-    types = ['Residential', 'Commercial', 'Industrial', 'Institutional', 'Not sure yet']
-    opts = ''.join(f'<option>{t}</option>' for t in types)
-    ph = ' or '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
-    ways = ('<button class="btn out" type="button" data-way="gmail">Send with Gmail</button><button class="btn out" type="button" data-way="outlook">Send with Outlook</button>'
-            '<button class="btn out" type="button" data-way="app">Open my email app</button><button class="btn out" type="button" data-way="copy">Copy message</button>')
-    send = (f'<button class="btn" type="submit" id="enqSend">Send enquiry</button><details class="alt"><summary>Prefer to use your own email?</summary><div class="ways">{ways}</div></details>' if EP
-            else f'<p class="how">Choose how to send it. Your message is filled in for you.</p><div class="ways">{ways}</div>')
-    return (f'<dialog id="enq" class="enq" aria-labelledby="enqT" data-email="{E(EM)}" data-endpoint="{E(EP)}" data-key="{E(KEY)}"><div class="in">'
-            f'<button class="x" type="button" id="enqX" aria-label="Close">Close</button><p class="kicker">Start a project</p><h2 id="enqT">Tell us about your project.</h2>'
-            f'<p class="lead">A few details are enough. We reply by phone or email.</p>'
-            f'<form id="enqForm" novalidate><div id="enqBody"><div class="g2"><div class="f"><label for="q-name">Your name</label><input id="q-name" name="name" type="text" autocomplete="name" required></div>'
-            f'<div class="f"><label for="q-phone">Phone</label><input id="q-phone" name="phone" type="tel" autocomplete="tel"></div></div>'
-            f'<div class="g2"><div class="f"><label for="q-email">Email</label><input id="q-email" name="email" type="email" autocomplete="email"></div>'
-            f'<div class="f"><label for="q-type">Project type</label><select id="q-type" name="type">{opts}</select></div></div>'
-            f'<div class="f"><label for="q-loc">Project location</label><input id="q-loc" name="location" type="text" placeholder="Suburb, town or province"></div>'
-            f'<div class="f"><label for="q-det">About the project</label><textarea id="q-det" name="details" required placeholder="What do you want to build, roughly how big, and when do you want to start?"></textarea></div>'
-            f'<div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>'
-            f'{send}</div><p id="enqMsg" class="msg" role="status" aria-live="polite"></p>'
-            f'<div id="enqDone" hidden><h3>Thank you.</h3><p>We have your enquiry and will reply by phone or email.</p><button class="btn" type="button" data-close>Close</button></div></form>'
-            f'<p class="alt2">Or call {ph}, or email <a href="mailto:{E(EM)}">{E(EM)}</a> <button class="cp" type="button" data-copy="{E(EM)}">Copy address</button></p></div></dialog>')
+            f'<nav id="nav" class="nav" aria-label="Main">{nav}</nav><a class="btn" href="{MAIL}">Start a project</a><button id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">Menu</button></div></header><main id="main">')
 def footer(R):
     ph = ''.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
     return (f'</main><footer><div class="wrap fg"><div>{img("logo-light.png", site["name"], R, "fl-logo")}<p>Nationally owned architects and project managers, {site["city"]}, Papua New Guinea.</p></div>'
             f'<div><h4>Navigation</h4>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
-            f'<div><h4>Contact</h4><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
+            f'<div><h4>Contact</h4><a href="{MAIL}">{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
             f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a></div></footer>'
-            + dlg() + f'<div class="dock"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></div><script src="{R}assets/js/app.js" defer></script></body></html>')
+            f'<div class="dock"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}">Email</a></div><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
     out = f'{DIST}/{path}'; os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -105,7 +76,7 @@ def ph(crumb, h1, lead):
     return f'<div class="ph"><div class="wrap"><p class="crumb"><a href="{{R}}index.html">Home</a> / {crumb}</p><h1>{h1}</h1><p class="lead">{lead}</p></div></div>'
 def PH(R, crumb, h1, lead): return ph(crumb, h1, lead).replace('{R}', R)
 def cta(R, h='Have a project in mind?', t='Email us a short description of your project, its location and your timeline.'):
-    return f'<div class="band"><div class="wrap"><h2>{h}</h2><p class="lead">{t}</p><div class="actions"><a class="btn light" href="{MAIL}" data-enquire>Email {E(site["short"])}</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div></div>'
+    return f'<div class="band"><div class="wrap"><h2>{h}</h2><p class="lead">{t}</p><div class="actions"><a class="btn light" href="{MAIL}">Email {E(site["short"])}</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div></div>'
 LEAD = lambda t: '<p class="lead">' + E(t) + '</p>'
 ND = '<div class="nd" aria-hidden="true"></div>'
 def card(p, i, R):
@@ -122,35 +93,19 @@ MARK = ('<svg viewBox="0 0 840 590" role="img" aria-labelledby="mkt"><title id="
  '<g class="rg"><circle cx="420" cy="416" r="112" fill="#fff"/><circle cx="420" cy="416" r="88" fill="#000191"/><g text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" fill="#fff"><text x="420" y="388" font-size="15" letter-spacing="5" fill="#A9C6FF">EST.</text><text x="420" y="441" font-size="50" font-weight="700" letter-spacing="-1">1996</text><text x="420" y="467" font-size="11" letter-spacing="2" fill="#A9C6FF">PNG-OWNED</text></g></g>'
  '<g class="dim" fill="none" stroke="#A9C6FF" stroke-width="1.5"><path d="M90 392V568M750 392V568M90 556H322M518 556H750M84 562L96 550M744 562L756 550"/></g>'
  '<text class="dim" x="420" y="561" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" letter-spacing="2" fill="#A9C6FF">OTI ARCHITECTS</text></svg>')
-def gallery(R):
-    fp = [p for p in projects if p.get('featured')]
-    sl = ''.join(f'<a class="slide" href="{R}projects/{p["slug"]}.html">{img(p["image"], p["alt"], R, lazy=(i > 0))}<div class="cap"><p class="meta"><span class="ref">{i+1:02d} / {len(fp):02d}</span><span>{E(p["type"])}</span><span>{E(p["statusLabel"])}</span></p><h3>{E(p["title"])}</h3><p class="where">{E(p["location"])}</p></div></a>' for i, p in enumerate(fp))
-    return (f'<section class="sec work"><div class="wrap"><div class="sh"><h2>Selected work.</h2><a class="link" href="{R}projects.html">View all projects</a></div></div>'
-            f'<div class="gal" id="gal" tabindex="0" role="region" aria-label="Selected projects, scroll sideways">{sl}</div>'
-            f'<div class="wrap"><div class="gal-ctl"><button type="button" id="galPrev" aria-label="Previous project">&larr;</button><button type="button" id="galNext" aria-label="Next project">&rarr;</button></div></div></section>')
-def placeof(loc):
-    for k in ('Port Moresby', 'Lae', 'Daru'):
-        if k in loc: return k
-    return loc.split(',')[-1].strip()
-def places(R):
-    g = {}
-    for p in projects: g.setdefault(placeof(p['location']), []).append(p)
-    order = sorted(g.items(), key=lambda kv: -len(kv[1]))
-    cells = ''.join(f'<div class="place reveal"><i>{len(v):02d}</i><b>{E(k)}</b><span>{E(", ".join(sorted({q["type"] for q in v})))}</span></div>' for k, v in order)
-    return f'<section class="sec tint"><div class="wrap"><h2>Where we have built.</h2><p class="lead">From the capital to the provinces: projects by place, drawn from the portfolio.</p><div class="places">{cells}</div></div></section>'
 def home(R):
     h = site['hero']; svcs = ''.join(f'<div class="svc reveal"><span class="n">{n+1:02d}</span><h3>{E(s["title"])}</h3><p>{E(s["text"])}</p></div>' for n, s in enumerate(services))
     feat = ''.join(card(p, projects.index(p), R) for p in projects if p.get('featured'))
     cl = ''.join(f'<div class="client">{img(c["logo"], c["name"], R) if c.get("logo") else E(c["name"])}</div>' for c in clients)
     facts = ''.join(f'<div class="fact"><b>{E(f["b"])}</b><span>{E(f["s"])}</span></div>' for f in site['facts'])
     fig = f'<figure class="fig">{img("lae-central.jpg", "Lae Central Complex, a yellow market building with sharp pitched roof forms", R)}{img("atrium.jpg", "Glazed barrel-vault atrium in an OTI project", R, "ins")}<figcaption>Lae Central Complex, 1987. Design architect Alama Oti.</figcaption></figure>'
-    return (f'<div class="hero"><div class="wrap hero-grid"><div><p class="kicker">{E(h["kicker"])}</p><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn light" href="{MAIL}" data-enquire>Email us about your project</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div>'
+    return (f'<div class="hero"><div class="wrap hero-grid"><div><p class="kicker">{E(h["kicker"])}</p><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn light" href="{MAIL}">Email us about your project</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div>'
             f'<figure class="mark">{MARK.replace("{R}", R)}<figcaption>Workers Mutual Centre, 2001</figcaption></figure></div></div>'
             f'<div class="facts"><div class="wrap">{facts}</div></div>'
             f'<section class="sec"><div class="wrap split"><div><h2>Working together is how we build.</h2>{"".join(LEAD(t) for t in site["aboutShort"])}<p><a class="link" href="{R}about.html">About OTI Architects</a></p></div>{fig}</div></section>{ND}'
             f'<section id="services" class="sec tint"><div class="wrap"><h2>Our services.</h2><p class="lead">Residential, industrial, commercial and institutional projects, in one or more of the following services.</p><div class="svcs">{svcs}</div></div></section>'
-            f'{gallery(R)}{places(R)}'
-            f'<section class="sec"><div class="wrap"><h2>Clients we have worked for.</h2><div class="clients">{cl}</div></div></section>' + cta(R))
+            f'<section class="sec"><div class="wrap"><div class="sh"><h2>Selected projects.</h2><a class="link" href="{R}projects.html">View all projects</a></div><div class="grid">{feat}</div></div></section>{ND}'
+            f'<section class="sec tint"><div class="wrap"><h2>Clients we have worked for.</h2><div class="clients">{cl}</div></div></section>' + cta(R))
 page('index.html', f'{site["name"]} | Architects and Project Managers, {site["city"]}', f'{site["name"]} is a nationally owned architecture, design consultation and project management practice in {site["city"]}, delivering residential, commercial, industrial and institutional buildings across Papua New Guinea since 1996.', home, home=True)
 def about(R):
     tl = ''.join(f'<li class="reveal"><b>{E(t["y"])}</b>{E(t["t"])}</li>' for t in site['timeline']); cr = ''.join(f'<div class="reveal"><b>{E(c["b"])}</b>{E(c["t"])}</div>' for c in site['credentials'])
@@ -163,14 +118,8 @@ page('about.html', f'About | {site["name"]}', f'{site["name"]} is a nationally o
 def plist(R):
     types = ['Commercial', 'Residential', 'Institutional', 'Industrial']
     chips = '<button class="chip on" type="button" data-f="all" aria-pressed="true">All</button><button class="chip" type="button" data-f="current" aria-pressed="false">In progress</button>' + ''.join(f'<button class="chip" type="button" data-f="{t.lower()}" aria-pressed="false">{t}</button>' for t in types)
-    views = '<div class="vt" role="group" aria-label="View"><button class="chip on" type="button" data-v="grid" aria-pressed="true">Images</button><button class="chip" type="button" data-v="list" aria-pressed="false">Index</button></div>'
-    def row(p, i):
-        live = p['status'] == 'current'
-        return (f'<a class="row" href="{R}projects/{p["slug"]}.html" data-c="{p["type"].lower()}{" current" if live else ""}">{img(p["image"], p["alt"], R, "th")}<span class="ref">{i+1:02d}</span>'
-                f'<span class="tt"><h3>{E(p["title"])}</h3><small>{E(p["location"])}</small></span><span class="ty">{E(p["type"])}</span><span class="stx{" live" if live else ""}">{E(p["statusLabel"])}</span></a>')
     return (PH(R, 'Projects', 'Projects.', 'Completed and current work across Port Moresby, Lae and Western Province. Select a project for its details.')
-            + f'<section class="sec"><div class="wrap"><div class="bar2"><div class="chips" role="group" aria-label="Filter projects">{chips}</div>{views}</div><p id="count" class="sr" aria-live="polite"></p>'
-            + f'<div class="grid" id="vGrid">{"".join(card(p, i, R) for i, p in enumerate(projects))}</div><div class="idx" id="vList" hidden>{"".join(row(p, i) for i, p in enumerate(projects))}</div></div></section>' + cta(R))
+            + f'<section class="sec"><div class="wrap"><div class="chips" role="group" aria-label="Filter projects">{chips}</div><p id="count" class="sr" aria-live="polite"></p><div class="grid">{"".join(card(p, i, R) for i, p in enumerate(projects))}</div></div></section>' + cta(R))
 page('projects.html', f'Projects | {site["name"]}', f'Completed and current projects by {site["name"]} across Port Moresby, Lae and Western Province.', plist)
 for i, p in enumerate(projects):
     def body(R, p=p, i=i):
@@ -189,14 +138,13 @@ def tpage(R):
 page('team.html', f'Team | {site["name"]}', f'Meet the architects of {site["name"]}, {site["city"]}.', tpage)
 def cpage(R):
     ph_ = ' / '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
-    return (PH(R, 'Contact', 'Contact us.', 'Tell us about your project, its location and your timeline. We reply by phone or email.')
-            + f'<section class="sec"><div class="wrap"><p><a class="btn big" href="{MAIL}" data-enquire>Start a project</a></p>'
-            + f'<ul class="cd"><li><small>Email</small><a href="{MAIL}" data-enquire>{EM}</a></li><li><small>Phone</small>{ph_}</li><li><small>Postal</small><strong>{E(site["postal"])}</strong></li></ul></div></section>')
+    return (PH(R, 'Contact', 'Contact us.', 'Email us a short description of your project, its location and your timeline.')
+            + f'<section class="sec"><div class="wrap"><p><a class="btn big" href="{MAIL}">Email {E(site["short"])}</a></p><h2 style="margin-top:0"></h2></div></section>').replace('<h2 style="margin-top:0"></h2>', f'<ul class="cd"><li><small>Email</small><a href="{MAIL}">{EM}</a></li><li><small>Phone</small>{ph_}</li><li><small>Postal</small><strong>{E(site["postal"])}</strong></li></ul>')
 page('contact.html', f'Contact | {site["name"]}', f'Contact {site["name"]} in {site["city"]} to discuss your project.', cpage)
 def priv(R):
     return (PH(R, 'Privacy', 'Privacy and data security.', f'Last updated {datetime.date.today():%d %B %Y}.')
-        + f'''<section class="sec"><div class="wrap prose"><h2>What this website collects</h2><p>Nothing is collected automatically. This website has no accounts, no cookies, no analytics, no advertising and no third-party scripts, fonts or images. Everything you see is served from this site.</p>
-<h2>When you contact us</h2><p>{E(FORMNOTE)}</p><p>If you email or phone us we receive the details you choose to send, such as your name, contact details and project information. We use them only to answer your enquiry and to deliver the project, and we do not sell or share them for marketing. To ask us to delete your emails, write to <a href="mailto:{EM}">{EM}</a>.</p>
+        + f'''<section class="sec"><div class="wrap prose"><h2>What this website collects</h2><p>Nothing. This website has no forms, no accounts, no cookies, no analytics, no advertising and no third-party scripts, fonts or images. Everything you see is served from this site.</p>
+<h2>When you contact us</h2><p>If you email or phone us we receive the details you choose to send, such as your name, contact details and project information. We use them only to answer your enquiry and to deliver the project, and we do not sell or share them for marketing. To ask us to delete your emails, write to <a href="mailto:{EM}">{EM}</a>.</p>
 <p>Email travels through your own email provider, so please do not send passwords or bank details by email.</p>
 <h2>Hosting</h2><p>The website is hosted on a static web host. Like most hosts it may keep standard technical logs, such as IP address, time and page requested, for security and reliability.</p>
 <h2>How the site is protected</h2><ul><li>A strict content security policy only allows content from this site.</li><li>Pages are checked automatically on every update for scripts, tracking, broken links and private details before they are published.</li><li>Photographs have hidden location and camera data removed.</li></ul>
@@ -208,9 +156,6 @@ page('404.html', f'Page not found | {site["name"]}', 'Page not found.', nf)
 # ---------------- static files ----------------
 shutil.copytree(S + '/assets', DIST + '/assets', dirs_exist_ok=True)
 if os.path.isdir(S + '/static'): shutil.copytree(S + '/static', DIST, dirs_exist_ok=True)
-for _f in ('_headers', '.htaccess'):
-    _p = f'{DIST}/{_f}'
-    if os.path.exists(_p): open(_p, 'w', encoding='utf-8').write(open(_p, encoding='utf-8').read().replace("connect-src 'none'", 'connect-src ' + (EPO or "'none'")))
 os.makedirs(DIST + '/.well-known', exist_ok=True)
 open(DIST + '/.well-known/security.txt', 'w').write(f'Contact: mailto:{EM}\nExpires: {site["securityExpires"]}T00:00:00.000Z\nPreferred-Languages: en\n' + (f'Canonical: {URL}/.well-known/security.txt\n' if URL else ''))
 open(DIST + '/robots.txt', 'w').write('User-agent: *\nAllow: /\n' + (f'Sitemap: {URL}/sitemap.xml\n' if URL else ''))

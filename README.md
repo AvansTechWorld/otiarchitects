@@ -20,11 +20,6 @@ A static website built from plain content files. Edit the content, push to `main
 2. In GitHub, go to Settings, then Pages, and set the source to **GitHub Actions**.
 3. Delete the old files from the repository root (the empty files such as `git`, `store`, `erase`), then upload this folder's contents.
 
-## The "Start a project" form and email buttons
-Every "Start a project" and "Email" button opens an enquiry form. It works in two modes:
-1. **Default (nothing to set up):** the visitor fills in the form, then picks *Send with Gmail*, *Send with Outlook*, *Open my email app* or *Copy message*. The message is pre-filled and addressed to the firm. Nothing is sent until the visitor presses Send in their own email.
-2. **Direct sending (recommended):** the enquiry lands straight in the firm's inbox with no email app involved. A static site cannot send email by itself, so use a free form service (for example Formspree or Web3Forms): create a form there for `otiarchitects@gmail.com`, then put its address in `content/site.json` as `"formEndpoint": "https://..."` (and `"formKey"` if the service gives you an access key). Push. The build adds only that one address to the security policy and the privacy page updates itself.
-
 ## Adding a project
 Add a block to `content/projects.json`, copy the photo into `src/assets/images`, push. Leave `"client"` empty for private clients. Set `"featured": true` to show it on the home page.
 
