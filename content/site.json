@@ -1,0 +1,96 @@
+{
+  "name": "OTI Architects Ltd",
+  "short": "OTI Architects",
+  "tagline": "Architects & Project Managers",
+  "email": "otiarchitects@gmail.com",
+  "phones": [
+    {
+      "label": "7159 9034",
+      "tel": "+67571599034"
+    },
+    {
+      "label": "7686 0928",
+      "tel": "+67576860928"
+    }
+  ],
+  "postal": "P.O. Box 4536, Boroko, NCD",
+  "city": "Port Moresby",
+  "foundedYear": 1996,
+  "url": "",
+  "base": "/",
+  "securityExpires": "2027-10-31",
+  "hero": {
+    "kicker": "Architecture · Design · Consultation · Project Management",
+    "title": "Architects and project managers for Papua New Guinea.",
+    "sub": "Nationally owned since 1996. Architectural design, consultation and project management for clients from home owners to mid-size commercial developments."
+  },
+  "about": [
+    "OTI Architects Ltd set foot in the industry on 8 February 1996, aiming to make an integral contribution to the development of Papua New Guinea and its growing building industry by delivering the needs of each client effectively and efficiently.",
+    "The firm is 100% nationally owned and provides professional architectural advice and services, in association with a close network of building industry professionals. Work has been undertaken throughout the country, in major provincial centres and remote district areas."
+  ],
+  "aboutShort": [
+    "OTI Architects is led by founder and Managing Director Alama Oti, a registered architect. Our vision is simple: successful projects and good outcomes for the people involved.",
+    "We work in association with major clients, builders, fellow architects and engineers, in flexible project teams to suit each project."
+  ],
+  "quote": "Our vision is simple: to achieve the common good of successful projects and the people involved.",
+  "sectors": [
+    "Residential",
+    "Industrial",
+    "Commercial",
+    "Institutional"
+  ],
+  "facts": [
+    {
+      "b": "Established 1996",
+      "s": "Based in Port Moresby"
+    },
+    {
+      "b": "40 years",
+      "s": "Experience of our Managing Director"
+    },
+    {
+      "b": "100% nationally owned",
+      "s": "Independent and PNG-run"
+    },
+    {
+      "b": "Nationwide",
+      "s": "Provincial centres and remote districts"
+    }
+  ],
+  "timeline": [
+    {
+      "y": "1987",
+      "t": "Lae Central Complex, designed by Alama Oti."
+    },
+    {
+      "y": "1996",
+      "t": "OTI Architects is founded on 8 February."
+    },
+    {
+      "y": "2001",
+      "t": "Workers Mutual Centre completed in Port Moresby."
+    },
+    {
+      "y": "2010",
+      "t": "Lae Biscuit Factory completed in Lae."
+    },
+    {
+      "y": "2026",
+      "t": "Building today: Daru, Boroko and 9-Mile."
+    }
+  ],
+  "credentials": [
+    {
+      "b": "Registered practice",
+      "t": "Registered architectural company with the PNG Board of Architects, No. C17-007. Alama Oti is registered architect No. 044."
+    },
+    {
+      "b": "Professional body",
+      "t": "Members of the PNG Institute of Architects."
+    },
+    {
+      "b": "Insurances",
+      "t": "Professional indemnity, public liability and workers compensation, current to February 2027."
+    }
+  ]
+}

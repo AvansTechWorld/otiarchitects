@@ -1,0 +1,18 @@
+# For cPanel / Apache hosting. Ignored by GitHub Pages and Netlify.
+Options -Indexes
+ErrorDocument 404 /404.html
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteRule (^|/)\.(?!well-known) - [F]
+</IfModule>
+<IfModule mod_headers.c>
+Header always set Content-Security-Policy "default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+Header always set Cross-Origin-Opener-Policy "same-origin"
+Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
