@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Alama Oti",
+    "role": "Managing Director, Registered Architect",
+    "img": "alama.jpg",
+    "bio": "Bachelor of Architecture, 1986, University of Technology. Leads design, contract documentation and project administration, and has acted as consulting architect to other project teams."
+  },
+  {
+    "name": "Mack Oti",
+    "role": "Graduate / Project Architect",
+    "img": "mack.jpg",
+    "bio": "Bachelor of Architecture, 2021, University of Technology. Project coordination, design and documentation, and tenders."
+  },
+  {
+    "name": "Karl Zume",
+    "role": "Graduate / Project Architect",
+    "img": "karl.jpg",
+    "bio": "Bachelor of Architecture, 2021, University of Technology. Design and documentation in ArchiCAD and Revit, drawing review and site supervision."
+  }
+]

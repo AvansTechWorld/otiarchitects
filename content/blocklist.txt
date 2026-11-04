@@ -1,0 +1,8 @@
+# Text that must never appear on the public site. The build fails if a line below is found.
+# One entry per line, case-insensitive. Lines starting with # are comments.
+section 94
+allotment 34
+korobosea drive
+vision city
+501400532
+Rita Oti
