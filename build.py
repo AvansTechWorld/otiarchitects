@@ -96,7 +96,7 @@ def footer(R):
             f'<div><h4>Navigation</h4>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
             f'<div><h4>Contact</h4><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
             f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a></div></footer>'
-            + dlg() + f'<div class="dock"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></div><script src="{R}assets/js/app.js" defer></script></body></html>')
+            + dlg() + '<div class="curtain" aria-hidden="true"></div><div class="prog" aria-hidden="true"></div><div class="cur" aria-hidden="true"><span></span></div>' + f'<div class="dock"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></div><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
     out = f'{DIST}/{path}'; os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -138,15 +138,19 @@ def places(R):
     order = sorted(g.items(), key=lambda kv: -len(kv[1]))
     cells = ''.join(f'<div class="place reveal"><i>{len(v):02d}</i><b>{E(k)}</b><span>{E(", ".join(sorted({q["type"] for q in v})))}</span></div>' for k, v in order)
     return f'<section class="sec tint"><div class="wrap"><h2>Where we have built.</h2><p class="lead">From the capital to the provinces: projects by place, drawn from the portfolio.</p><div class="places">{cells}</div></div></section>'
+def MQ():
+    w = list(site['sectors']) + [x['title'] for x in services]
+    one = ''.join(f'<span>{E(x)}</span>' for x in w)
+    return f'<div class="mq" aria-hidden="true"><div class="mq-t">{one}{one}</div></div>'
 def home(R):
     h = site['hero']; svcs = ''.join(f'<div class="svc reveal"><span class="n">{n+1:02d}</span><h3>{E(s["title"])}</h3><p>{E(s["text"])}</p></div>' for n, s in enumerate(services))
     feat = ''.join(card(p, projects.index(p), R) for p in projects if p.get('featured'))
     cl = ''.join(f'<div class="client">{img(c["logo"], c["name"], R) if c.get("logo") else E(c["name"])}</div>' for c in clients)
     facts = ''.join(f'<div class="fact"><b>{E(f["b"])}</b><span>{E(f["s"])}</span></div>' for f in site['facts'])
     fig = f'<figure class="fig">{img("lae-central.jpg", "Lae Central Complex, a yellow market building with sharp pitched roof forms", R)}{img("atrium.jpg", "Glazed barrel-vault atrium in an OTI project", R, "ins")}<figcaption>Lae Central Complex, 1987. Design architect Alama Oti.</figcaption></figure>'
-    return (f'<div class="hero"><div class="wrap hero-grid"><div><p class="kicker">{E(h["kicker"])}</p><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn light" href="{MAIL}" data-enquire>Email us about your project</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div>'
+    return (f'<div class="hero"><div class="pat" aria-hidden="true"></div><span class="cue" aria-hidden="true"></span><div class="wrap hero-grid"><div><p class="kicker">{E(h["kicker"])}</p><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn light" href="{MAIL}" data-enquire>Email us about your project</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div>'
             f'<figure class="mark">{MARK.replace("{R}", R)}<figcaption>Workers Mutual Centre, 2001</figcaption></figure></div></div>'
-            f'<div class="facts"><div class="wrap">{facts}</div></div>'
+            f'{MQ()}<div class="facts"><div class="wrap">{facts}</div></div>'
             f'<section class="sec"><div class="wrap split"><div><h2>Working together is how we build.</h2>{"".join(LEAD(t) for t in site["aboutShort"])}<p><a class="link" href="{R}about.html">About OTI Architects</a></p></div>{fig}</div></section>{ND}'
             f'<section id="services" class="sec tint"><div class="wrap"><h2>Our services.</h2><p class="lead">Residential, industrial, commercial and institutional projects, in one or more of the following services.</p><div class="svcs">{svcs}</div></div></section>'
             f'{gallery(R)}{places(R)}'
