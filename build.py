@@ -56,6 +56,8 @@ NAV = [('index.html', 'Home'), ('about.html', 'About'), ('index.html#services', 
 pages = []
 def head(title, desc, R, path, home=False):
     canon = f'<link rel="canonical" href="{URL}/{path}"><meta property="og:url" content="{URL}/{path}">' if URL else ''
+    if URL: canon += f'<meta property="og:image" content="{URL}/assets/images/workers-mutual.jpg"><meta property="og:site_name" content="{E(site["name"])}"><meta name="twitter:card" content="summary_large_image">'
+    if path == '404.html': canon += '<meta name="robots" content="noindex">'
     ld = ''
     if home:
         d = {"@context": "https://schema.org", "@type": "Architect", "name": site['name'], "foundingDate": "1996-02-08", "email": EM, "telephone": [p['tel'] for p in site['phones']], "areaServed": "Papua New Guinea", "address": {"@type": "PostalAddress", "addressLocality": site['city'], "addressCountry": "PG"}}
@@ -93,10 +95,10 @@ def dlg():
 def footer(R):
     ph = ''.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
     return (f'</main><footer><div class="wrap fg"><div>{img("logo-light.png", site["name"], R, "fl-logo")}<p>Nationally owned architects and project managers, {site["city"]}, Papua New Guinea.</p></div>'
-            f'<div><h4>Navigation</h4>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
-            f'<div><h4>Contact</h4><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
-            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a></div></footer>'
-            + dlg() + '<div class="curtain" aria-hidden="true"></div><div class="prog" aria-hidden="true"></div><div class="cur" aria-hidden="true"><span></span></div>' + f'<div class="dock"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></div><script src="{R}assets/js/app.js" defer></script></body></html>')
+            f'<div><p class="fh">Navigation</p>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
+            f'<div><p class="fh">Contact</p><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
+            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><button class="mt" type="button">Pause motion</button></div></footer>'
+            + dlg() + '<div class="curtain" aria-hidden="true"></div><div class="prog" aria-hidden="true"></div><div class="cur" aria-hidden="true"><span></span></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
     out = f'{DIST}/{path}'; os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -155,7 +157,7 @@ def home(R):
             f'<section id="services" class="sec tint"><div class="wrap"><h2>Our services.</h2><p class="lead">Residential, industrial, commercial and institutional projects, in one or more of the following services.</p><div class="svcs">{svcs}</div></div></section>'
             f'{gallery(R)}{places(R)}'
             f'<section class="sec"><div class="wrap"><h2>Clients we have worked for.</h2><div class="clients">{cl}</div></div></section>' + cta(R))
-page('index.html', f'{site["name"]} | Architects and Project Managers, {site["city"]}', f'{site["name"]} is a nationally owned architecture, design consultation and project management practice in {site["city"]}, delivering residential, commercial, industrial and institutional buildings across Papua New Guinea since 1996.', home, home=True)
+page('index.html', f'{site["short"]} | Architects in {site["city"]}, PNG', f'Nationally owned architects and project managers in {site["city"]}. Residential, commercial, industrial and institutional buildings across PNG since 1996.', home, home=True)
 def about(R):
     tl = ''.join(f'<li class="reveal"><b>{E(t["y"])}</b>{E(t["t"])}</li>' for t in site['timeline']); cr = ''.join(f'<div class="reveal"><b>{E(c["b"])}</b>{E(c["t"])}</div>' for c in site['credentials'])
     fig = f'<figure class="fig">{img("atrium.jpg", "Glazed barrel-vault atrium in an OTI project", R)}{img("workers-mutual.jpg", "Workers Mutual Centre", R, "ins")}</figure>'
@@ -174,7 +176,7 @@ def plist(R):
                 f'<span class="tt"><h3>{E(p["title"])}</h3><small>{E(p["location"])}</small></span><span class="ty">{E(p["type"])}</span><span class="stx{" live" if live else ""}">{E(p["statusLabel"])}</span></a>')
     return (PH(R, 'Projects', 'Projects.', 'Completed and current work across Port Moresby, Lae and Western Province. Select a project for its details.')
             + f'<section class="sec"><div class="wrap"><div class="bar2"><div class="chips" role="group" aria-label="Filter projects">{chips}</div>{views}</div><p id="count" class="sr" aria-live="polite"></p>'
-            + f'<div class="grid" id="vGrid">{"".join(card(p, i, R) for i, p in enumerate(projects))}</div><div class="idx" id="vList" hidden>{"".join(row(p, i) for i, p in enumerate(projects))}</div></div></section>' + cta(R))
+            + f'<h2 class="sr">All projects</h2><div class="grid" id="vGrid">{"".join(card(p, i, R) for i, p in enumerate(projects))}</div><div class="idx" id="vList" hidden>{"".join(row(p, i) for i, p in enumerate(projects))}</div></div></section>' + cta(R))
 page('projects.html', f'Projects | {site["name"]}', f'Completed and current projects by {site["name"]} across Port Moresby, Lae and Western Province.', plist)
 for i, p in enumerate(projects):
     def body(R, p=p, i=i):
@@ -189,7 +191,7 @@ for i, p in enumerate(projects):
     page(f'projects/{p["slug"]}.html', f'{p["title"]} | {site["name"]}', f'{p["title"]}, {p["type"].lower()} project in {p["location"]} by {site["name"]}.', body, cur='projects.html')
 def tpage(R):
     ppl = ''.join(f'<div class="person reveal">{img(t["img"], t["name"], R)}<h3>{E(t["name"])}</h3><p class="role">{E(t["role"])}</p><p>{E(t["bio"])}</p></div>' for t in team)
-    return PH(R, 'Team', 'Our team.', 'Registered architects and graduates, working together on every project.') + f'<section class="sec"><div class="wrap"><div class="team">{ppl}</div></div></section>' + cta(R)
+    return PH(R, 'Team', 'Our team.', 'Registered architects and graduates, working together on every project.') + f'<section class="sec"><div class="wrap"><h2 class="sr">Team members</h2><div class="team">{ppl}</div></div></section>' + cta(R)
 page('team.html', f'Team | {site["name"]}', f'Meet the architects of {site["name"]}, {site["city"]}.', tpage)
 def cpage(R):
     ph_ = ' / '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
