@@ -1,6 +1,6 @@
 # OTI Architects website: quality, security and launch checklist
 
-Last full test run: 5 November 2026 (Chromium, desktop 1366px and phone 390px, 19 pages).
+Last full test run: 6 November 2026 (Chromium, desktop 1366px and phone 390px, 19 pages).
 
 ## Results
 | Area | Test | Result |
@@ -9,8 +9,8 @@ Last full test run: 5 November 2026 (Chromium, desktop 1366px and phone 390px, 1
 | Accessibility | Keyboard only: 44 tab stops, visible focus ring on every one, nothing hidden under the header | Pass |
 | Accessibility | Colour contrast, page language, one h1 per page, heading order, landmarks, alt text | Pass |
 | Accessibility | Reflow at 320px and 640px, text-spacing stress test (WCAG 1.4.12) | No sideways scroll, no clipped text |
-| Accessibility | Pause control for moving content (WCAG 2.2.2) | "Pause motion" button on every page; remembers the choice |
-| Accessibility | Respects "reduce motion" on the visitor's device | Motion off by default there; "Play motion" turns it on |
+| Accessibility | Pause control for moving content (WCAG 2.2.2) | "Pause animation" button on every page; remembers the choice |
+| Accessibility | Respects "reduce motion" on the visitor's device | Motion off by default there; "Play animation" turns it on |
 | Security | Content Security Policy: injected scripts and styles blocked during testing | Blocked |
 | Security | Console errors / policy violations across all 19 pages with the policy ON | None |
 | Security | Enquiry email buttons: text typed in the form is URL-encoded, opens with noopener, addressed to the firm | Pass |

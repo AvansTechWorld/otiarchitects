@@ -98,7 +98,7 @@ def footer(R):
             f'<div><p class="fh">Navigation</p>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
             f'<div><p class="fh">Contact</p><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
             f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><button class="mt" type="button">Pause motion</button></div></footer>'
-            + dlg() + '<div class="curtain" aria-hidden="true"></div><div class="prog" aria-hidden="true"></div><div class="cur" aria-hidden="true"><span></span></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
+            + dlg() + '<div class="curtain" aria-hidden="true"></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
     out = f'{DIST}/{path}'; os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -114,6 +114,16 @@ def card(p, i, R):
     live = p['status'] == 'current'; cl = f'<p class="cl">{E(p["client"])}</p>' if p.get('client') else ''
     return (f'<a class="card reveal" href="{R}projects/{p["slug"]}.html" data-c="{p["type"].lower()}{" current" if live else ""}"><div class="im">{img(p["image"], p["alt"], R)}<span class="st{" live" if live else ""}">{E(p["statusLabel"])}</span></div>'
             f'<div class="bd"><p class="meta"><span class="ref">{i+1:02d}</span><span>{E(p["type"])}</span></p><h3>{E(p["title"])}</h3><p class="cl">{E(p["location"])}</p>{cl}</div></a>')
+DRAW = ('<svg viewBox="0 0 640 560" role="img" aria-labelledby="mkt"><title id="mkt">Drawing of the OTI Architects mark: a roof triangle over a ring on a base line, set out on a structural grid</title>'
+ '<defs><clipPath id="tc"><polygon points="320,84 96,330 544,330"/></clipPath></defs>'
+ '<g><path class="dr gx a1" pathLength="1" d="M96 44V520"/><path class="dr gx a1" pathLength="1" d="M320 44V520"/><path class="dr gx a1" pathLength="1" d="M544 44V520"/><path class="dr gx a2" pathLength="1" d="M20 210H620"/></g>'
+ '<g class="bub" text-anchor="middle" font-size="13"><circle cx="96" cy="26" r="15"/><circle cx="320" cy="26" r="15"/><circle cx="544" cy="26" r="15"/><text x="96" y="31">A</text><text x="320" y="31">B</text><text x="544" y="31">C</text></g>'
+ '<g clip-path="url(#tc)"><g class="pic"><image href="@R@assets/images/workers-mutual.jpg" x="40" y="64" width="560" height="298" preserveAspectRatio="xMidYMid slice"/><rect x="0" y="0" width="640" height="340" fill="#0459F1" opacity=".26"/></g></g>'
+ '<path class="dr a3" pathLength="1" d="M262 330H96L320 84 544 330H378"/><path class="dr a4" pathLength="1" d="M20 372H268M372 372H620"/>'
+ '<circle class="disc" cx="320" cy="372" r="52"/><circle class="dr a5" pathLength="1" cx="320" cy="372" r="52"/>'
+ '<g class="core" text-anchor="middle"><circle cx="320" cy="372" r="40"/><text class="est" x="320" y="366" font-size="11">Est.</text><text class="yr" x="320" y="388" font-size="24">1996</text></g>'
+ '<path class="dr dim a6" pathLength="1" d="M96 384V484M544 384V484M96 470H544M90 476L102 464M538 476L550 464"/>'
+ '<text class="dt" x="320" y="458" text-anchor="middle" font-size="14">OTI Architects Ltd, @CITY@</text></svg>')
 MARK = ('<svg viewBox="0 0 840 590" role="img" aria-labelledby="mkt"><title id="mkt">OTI Architects mark: a triangle above a ring on a base line</title>'
  '<defs><clipPath id="tc"><polygon points="420,50 90,380 750,380"/></clipPath><pattern id="ps" width="14" height="10" patternUnits="userSpaceOnUse"><rect width="2" height="10" fill="#fff" opacity=".16"/></pattern></defs>'
  '<circle class="rip" cx="420" cy="416" r="112"/><circle class="rip b" cx="420" cy="416" r="112"/>'
@@ -140,19 +150,15 @@ def places(R):
     order = sorted(g.items(), key=lambda kv: -len(kv[1]))
     cells = ''.join(f'<div class="place reveal"><i>{len(v):02d}</i><b>{E(k)}</b><span>{E(", ".join(sorted({q["type"] for q in v})))}</span></div>' for k, v in order)
     return f'<section class="sec tint"><div class="wrap"><h2>Where we have built.</h2><p class="lead">From the capital to the provinces: projects by place, drawn from the portfolio.</p><div class="places">{cells}</div></div></section>'
-def MQ():
-    w = list(site['sectors']) + [x['title'] for x in services]
-    one = ''.join(f'<span>{E(x)}</span>' for x in w)
-    return f'<div class="mq" aria-hidden="true"><div class="mq-t">{one}{one}</div></div>'
 def home(R):
     h = site['hero']; svcs = ''.join(f'<div class="svc reveal"><span class="n">{n+1:02d}</span><h3>{E(s["title"])}</h3><p>{E(s["text"])}</p></div>' for n, s in enumerate(services))
     feat = ''.join(card(p, projects.index(p), R) for p in projects if p.get('featured'))
     cl = ''.join(f'<div class="client">{img(c["logo"], c["name"], R) if c.get("logo") else E(c["name"])}</div>' for c in clients)
     facts = ''.join(f'<div class="fact"><b>{E(f["b"])}</b><span>{E(f["s"])}</span></div>' for f in site['facts'])
     fig = f'<figure class="fig">{img("lae-central.jpg", "Lae Central Complex, a yellow market building with sharp pitched roof forms", R)}{img("atrium.jpg", "Glazed barrel-vault atrium in an OTI project", R, "ins")}<figcaption>Lae Central Complex, 1987. Design architect Alama Oti.</figcaption></figure>'
-    return (f'<div class="hero"><div class="pat" aria-hidden="true"></div><span class="cue" aria-hidden="true"></span><div class="wrap hero-grid"><div><p class="kicker">{E(h["kicker"])}</p><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn light" href="{MAIL}" data-enquire>Email us about your project</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div>'
-            f'<figure class="mark">{MARK.replace("{R}", R)}<figcaption>Workers Mutual Centre, 2001</figcaption></figure></div></div>'
-            f'{MQ()}<div class="facts"><div class="wrap">{facts}</div></div>'
+    return (f'<div class="hero"><div class="wrap hero-grid"><div><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn" href="{MAIL}" data-enquire>Email us about your project</a><a class="btn line" href="{R}projects.html">View projects</a></div></div>'
+            f'<figure class="mark">{DRAW.replace("@R@", R).replace("@CITY@", E(site["city"]))}<figcaption>Workers Mutual Centre, 2001</figcaption></figure></div></div>'
+            f'<div class="facts"><div class="wrap">{facts}</div></div>'
             f'<section class="sec"><div class="wrap split"><div><h2>Working together is how we build.</h2>{"".join(LEAD(t) for t in site["aboutShort"])}<p><a class="link" href="{R}about.html">About OTI Architects</a></p></div>{fig}</div></section>{ND}'
             f'<section id="services" class="sec tint"><div class="wrap"><h2>Our services.</h2><p class="lead">Residential, industrial, commercial and institutional projects, in one or more of the following services.</p><div class="svcs">{svcs}</div></div></section>'
             f'{gallery(R)}{places(R)}'
