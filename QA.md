@@ -41,3 +41,10 @@ Last full test run: 6 November 2026 (Chromium, desktop 1366px and phone 390px, 1
 - Tested in Chromium only. Check Safari (iPhone) and Firefox once live.
 - Photos total about 1 MB. Converting them to WebP would cut this by about a third for visitors on slow mobile data.
 - The security headers only apply on a host that supports them. On GitHub Pages only the in-page policy applies.
+
+## Test run, 9 November 2026 (v3 polish)
+Chromium via Playwright, built output served locally.
+- 20 pages at 320, 390, 768 and 1366 px; the 5 core pages also at 360, 430, 600, 820, 1024, 1280, 1536 and 1920 px: no sideways scroll, no console or CSP errors, no content left hidden after scrolling.
+- axe-core (WCAG 2.0 to 2.2 A/AA plus best practice) on 9 key pages at 390 and 1366 px, after animations settle: 0 violations.
+- Functions: header hide/show, progress line, gallery arrows, enquiry dialog, validation, Gmail and Outlook compose links (address and encoding checked), Copy message, Copy address, Escape, page transitions, back button, project filters, grid/index view, mobile menu and dock, Pause animation, reduced-motion preference: all pass.
+- Not tested: Safari and Firefox, real devices, Lighthouse, live form endpoint, live DNS/email (needs your domain).

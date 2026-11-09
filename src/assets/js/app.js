@@ -111,3 +111,39 @@ if(!rm&&W.matchMedia('(pointer:fine)').matches){
   gal.addEventListener('click',function(e){if(mv>6){e.preventDefault();e.stopPropagation()}},true);
   gal.addEventListener('dragstart',function(e){e.preventDefault()})}}
 })();
+
+/* ================= motion v3: progress line, smart header, staggered reveal, image fade ================= */
+(function(){
+var d=document,r=d.documentElement,W=window,$$=function(s,x){return[].slice.call((x||d).querySelectorAll(s))};
+var rm=r.classList.contains('rmx');
+/* images ease in once they have loaded (cached ones are already complete and stay still) */
+$$('img').forEach(function(i){if(!i.complete)i.addEventListener('load',function(){i.classList.add('ld')},{once:true})});
+if(rm)return;
+/* thin progress line + header that tucks away on the way down */
+var bar=d.createElement('div');bar.className='prog';bar.setAttribute('aria-hidden','true');d.body.appendChild(bar);
+var hd=d.querySelector('header.top'),nv=d.getElementById('nav'),ly=W.scrollY,tk=false;
+function pos(){tk=false;var y=W.scrollY,m=r.scrollHeight-W.innerHeight;bar.style.setProperty('--p',m>0?Math.min(1,y/m).toFixed(4):'0');
+ if(hd){var busy=(nv&&nv.classList.contains('open'))||hd.contains(d.activeElement)||r.classList.contains('lock');
+  if(y<200||y<ly-4||busy)hd.classList.remove('hid');else if(y>ly+6)hd.classList.add('hid')}
+ ly=y}
+function ask(){if(!tk){tk=true;requestAnimationFrame(pos)}}
+W.addEventListener('scroll',ask,{passive:true});W.addEventListener('resize',ask);
+if(hd)hd.addEventListener('focusin',function(){hd.classList.remove('hid')});pos();
+/* staggered reveal */
+var q='.card,.svc,.person,.place,.client,.fact,.tl li,.creds>div,.tb,.cd li,.prose>*,.sectors,.band .actions,.band cite,.sheet,.fig,.pn,.bar2,.cta .lead,.sec .lead,.sh,.ph .crumb,.ph .lead,.band .lead,footer .fg>div,footer .fl';
+var els=$$(q).filter(function(e){return !e.closest('.hero')&&!e.closest('dialog')&&!e.closest('.gal')&&!e.querySelector('.rv')});
+var kids=[];
+els.forEach(function(e){e.classList.remove('reveal');e.classList.add('rv');
+ if(e.classList.contains('sheet'))e.classList.add('rv-wipe');
+ var p=e.parentNode,n=p.__rvn||0;p.__rvn=n+1;e.style.setProperty('--rd',(Math.min(n,6)*0.09).toFixed(2)+'s');kids.push(e)});
+var pl=$$('.ph .lead')[0];if(pl)pl.style.setProperty('--rd','.45s');
+var io=W.IntersectionObserver&&new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('vis');io.unobserve(x.target)}})},{threshold:.1,rootMargin:'0px 0px -6% 0px'});
+kids.forEach(function(e){if(io)io.observe(e);else e.classList.add('vis')});
+/* safety net: anything that is on screen but never fired (rare browser quirks) is shown after 2.5 s */
+setTimeout(function(){kids.forEach(function(e){if(!e.classList.contains('vis')){var b=e.getBoundingClientRect();if(b.top<W.innerHeight&&b.bottom>0)e.classList.add('vis')}})},2500);
+/* project filter: cards fade up in turn when the list changes */
+var gr=d.getElementById('vGrid');
+if(gr)$$('.chip[data-f]').forEach(function(c){c.addEventListener('click',function(){
+ var k=0;$$('.card',gr).forEach(function(x){if(!x.hidden){x.style.setProperty('--k',Math.min(k++,8));x.classList.add('vis')}});
+ gr.classList.remove('flt');void gr.offsetWidth;gr.classList.add('flt');setTimeout(function(){gr.classList.remove('flt')},1100)})});
+})();

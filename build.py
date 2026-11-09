@@ -97,7 +97,7 @@ def footer(R):
     return (f'</main><footer><div class="wrap fg"><div>{img("logo-light.png", site["name"], R, "fl-logo")}<p>Nationally owned architects and project managers, {site["city"]}, Papua New Guinea.</p></div>'
             f'<div><p class="fh">Navigation</p>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
             f'<div><p class="fh">Contact</p><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
-            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><button class="mt" type="button">Pause motion</button></div></footer>'
+            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><a href="{R}legal.html">Legal notice</a><button class="mt" type="button">Pause motion</button></div></footer>'
             + dlg() + '<div class="curtain" aria-hidden="true"></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
@@ -205,15 +205,28 @@ def cpage(R):
             + f'<section class="sec"><div class="wrap"><p><a class="btn big" href="{MAIL}" data-enquire>Start a project</a></p>'
             + f'<ul class="cd"><li><small>Email</small><a href="{MAIL}" data-enquire>{EM}</a></li><li><small>Phone</small>{ph_}</li><li><small>Postal</small><strong>{E(site["postal"])}</strong></li></ul></div></section>')
 page('contact.html', f'Contact | {site["name"]}', f'Contact {site["name"]} in {site["city"]} to discuss your project.', cpage)
+CDNNOTE = ' and delivered through Cloudflare, which processes visitors\u2019 IP addresses to deliver pages quickly and to block attacks' if site.get('cdn') == 'cloudflare' else ''
 def priv(R):
     return (PH(R, 'Privacy', 'Privacy and data security.', f'Last updated {datetime.date.today():%d %B %Y}.')
         + f'''<section class="sec"><div class="wrap prose"><h2>What this website collects</h2><p>Nothing is collected automatically. This website has no accounts, no cookies, no analytics, no advertising and no third-party scripts, fonts or images. Everything you see is served from this site.</p>
 <h2>When you contact us</h2><p>{E(FORMNOTE)}</p><p>If you email or phone us we receive the details you choose to send, such as your name, contact details and project information. We use them only to answer your enquiry and to deliver the project, and we do not sell or share them for marketing. To ask us to delete your emails, write to <a href="mailto:{EM}">{EM}</a>.</p>
 <p>Email travels through your own email provider, so please do not send passwords or bank details by email.</p>
-<h2>Hosting</h2><p>The website is hosted on a static web host. Like most hosts it may keep standard technical logs, such as IP address, time and page requested, for security and reliability.</p>
+<h2>Hosting</h2><p>The website is hosted on a static web host{CDNNOTE}. Like most hosts it may keep standard technical logs, such as IP address, time and page requested, for security and reliability. These logs are not used to identify or profile visitors.</p>
 <h2>How the site is protected</h2><ul><li>A strict content security policy only allows content from this site.</li><li>Pages are checked automatically on every update for scripts, tracking, broken links and private details before they are published.</li><li>Photographs have hidden location and camera data removed.</li></ul>
 <h2>Reporting a security problem</h2><p>Please email <a href="mailto:{EM}">{EM}</a>. Details are in our <a href="{R}.well-known/security.txt">security.txt</a> file.</p></div></section>''')
 page('privacy.html', f'Privacy and security | {site["name"]}', f'How {site["name"]} handles data and protects this website.', priv)
+
+def legal(R):
+    em = EM; ph_ = ' / '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
+    return (PH(R, 'Legal notice', 'Legal notice and website terms.', f'Last updated {datetime.date.today():%d %B %Y}.')
+        + f'''<section class="sec"><div class="wrap prose"><h2>Who runs this website</h2><p>This website is published by {E(site["name"])}, a company based in {E(site["city"])}, Papua New Guinea. Postal address: {E(site["postal"])}. Email: <a href="mailto:{em}">{em}</a>. Phone: {ph_}.</p>
+<h2>Professional registration</h2><p>Our registration with the Papua New Guinea Board of Architects and our professional memberships are listed on the <a href="{R}about.html">About page</a>. The title “architect” is used only by registered persons and practices.</p>
+<h2>Information on this site</h2><p>Descriptions, project values and dates are given in good faith and may be updated as projects progress. They are general information, not professional advice, and do not form an offer or a contract. A commission starts only when a written agreement is signed.</p>
+<h2>Copyright</h2><p>Drawings, photographs, text and the OTI Architects logo belong to {E(site["name"])} or to the client or photographer who allowed their use. Please ask before you copy, publish or change them. Linking to this site is welcome.</p>
+<h2>Using the website safely</h2><p>Please do not attempt to disrupt this website or gain access to systems that are not public. Unauthorised access to computer systems is an offence under the Cybercrime Code Act 2016. To report a weakness, see our <a href="{R}.well-known/security.txt">security.txt</a> file.</p>
+<h2>Privacy</h2><p>How we handle the details you give us is explained on the <a href="{R}privacy.html">privacy page</a>.</p>
+<h2>Governing law</h2><p>This website and these terms are governed by the laws of the Independent State of Papua New Guinea.</p></div></section>''')
+page('legal.html', f'Legal notice | {site["name"]}', f'Legal notice, copyright and website terms of {site["name"]}.', legal)
 def nf(R):
     return f'<section class="sec"><div class="wrap"><p class="kicker" style="color:var(--blue)"></p><h1>Page not found.</h1><p class="lead">The page may have moved.</p><p><a class="btn" href="{R}index.html">Back to home</a></p></div></section>'.replace(' style="color:var(--blue)"', '')
 page('404.html', f'Page not found | {site["name"]}', 'Page not found.', nf)

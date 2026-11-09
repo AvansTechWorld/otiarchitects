@@ -1,5 +1,7 @@
 # OTI Architects Ltd website
 
+> v3: softer scroll motion, legal notice page, `tools/dns_plan.py` (Cloudflare DNS and Gmail), `DEPLOY.md`, `COMPLIANCE.md`.
+
 A static website built from plain content files. Edit the content, push to `main`, and GitHub builds, checks and publishes it.
 
 ## How it is organised

@@ -216,3 +216,61 @@ h1,h2{letter-spacing:-.005em}
 .fig figcaption,.svc .n,.n{font-family:var(--sans)}
 .ph{padding-block:var(--s5) var(--s4)}.ph::after{display:none}
 @media(max-width:960px){.hero-grid{gap:var(--s3);padding-top:var(--s3)}.mark{order:-1}.mark svg{display:block;max-height:34svh;margin-inline:auto}.mark figcaption{display:none}.hero .sub{margin:var(--s2) 0 var(--s3)}}
+
+/* ================= v3 polish: seamless sections, softer motion, richer hover =================
+   All motion below is gated on html:not(.rmx), so "reduce motion" and the Pause button switch it off.
+   Only opacity, transform, clip-path and the individual translate/scale properties are animated (no layout shift). */
+::selection{background:var(--blue);color:#fff}
+html{scrollbar-gutter:stable}body{overflow-x:clip}
+/* tinted sections fade in and out of the white ones instead of cutting */
+.sec.tint{position:relative;isolation:isolate}
+.sec.tint::before,.sec.tint::after{content:"";position:absolute;left:0;right:0;height:clamp(2.5rem,7vw,5.5rem);z-index:-1;pointer-events:none}
+.sec.tint::before{top:0;background:linear-gradient(#fff,rgba(255,255,255,0))}
+.sec.tint::after{bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff)}
+/* scroll progress line */
+.prog{position:fixed;left:0;top:0;height:3px;width:100%;z-index:60;background:linear-gradient(90deg,var(--blue),var(--sky));transform:scaleX(var(--p,0));transform-origin:0 50%;pointer-events:none}
+/* header tucks away while reading down, returns on the way up */
+header.top{transition:box-shadow .25s,transform .5s var(--ease)}
+html:not(.rmx) header.top.hid{transform:translateY(-102%);box-shadow:none}
+/* buttons and links */
+.btn{transition:background .25s,color .25s,border-color .25s,box-shadow .35s var(--ease),translate .35s var(--ease)}
+html:not(.rmx) .btn:hover{translate:0 -2px;box-shadow:0 12px 24px -12px rgba(4,89,241,.6)}
+html:not(.rmx) .btn:active{translate:0 1px;box-shadow:none}
+.link{background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;transition:background-size .4s var(--ease),color .25s;padding-bottom:2px;text-decoration:none}
+html:not(.rmx) .link:hover{background-size:0 1px;background-position:100% 100%}
+/* cards: text lifts, title draws a line */
+.card .bd{transition:translate .5s var(--ease)}
+html:not(.rmx) .card:hover .bd{translate:0 -4px}
+.card h3{background:linear-gradient(var(--blue),var(--blue)) 0 100%/0 2px no-repeat;padding-bottom:.18em;transition:background-size .55s var(--ease),color .25s}
+.card:hover h3,.card:focus-visible h3{background-size:100% 2px}
+.place,.client,.person{transition:translate .5s var(--ease),box-shadow .5s var(--ease),border-color .3s}
+html:not(.rmx) .place:hover,html:not(.rmx) .client:hover{translate:0 -3px;box-shadow:0 16px 30px -22px rgba(5,10,51,.55)}
+.person img{transition:scale .9s var(--ease),filter .6s}html:not(.rmx) .person:hover img{scale:1.04}
+/* staggered reveal: JS adds .rv, then .vis when it enters the screen */
+html.js:not(.rmx) .rv{opacity:0;transform:translate3d(0,28px,0);transition:opacity .9s var(--ease) var(--rd,0s),transform 1.05s var(--ease) var(--rd,0s)}
+html.js:not(.rmx) .rv.vis{opacity:1;transform:none}
+html.js:not(.rmx) .rv.rv-wipe{opacity:1;transform:none;transition:none}
+html.js:not(.rmx) .rv-wipe img{clip-path:inset(0 0 100% 0);transition:clip-path 1.25s var(--ease) var(--rd,0s)}
+html.js:not(.rmx) .rv-wipe.vis img{clip-path:inset(0)}
+/* images ease in as they finish loading */
+@keyframes imgIn{from{opacity:0}}html:not(.rmx) img.ld{animation:imgIn .9s var(--ease) both}
+/* filter change: visible cards fade up in turn */
+@keyframes fltIn{from{opacity:0;transform:translate3d(0,18px,0)}}
+html:not(.rmx) .flt>:not([hidden]){animation:fltIn .6s var(--ease) calc(var(--k,0)*55ms) both}
+/* page transition: main fades out, curtain carries a small spinner, new page fades up behind it */
+html.js:not(.rmx) main{animation:mainIn .8s .12s var(--ease) both}
+@keyframes mainIn{from{opacity:0;transform:translate3d(0,12px,0)}}
+html.js.go:not(.rmx) main{opacity:0;transition:opacity .3s}
+.js .curtain::after{content:"";position:absolute;left:50%;top:55%;width:46px;height:46px;margin:-23px 0 0 -23px;border:3px solid rgba(169,198,255,.35);border-top-color:var(--sky);border-radius:50%;opacity:0}
+.js.go .curtain::after{opacity:1;transition:opacity .3s .15s;animation:spin .8s linear infinite}@keyframes spin{to{rotate:360deg}}
+/* enquiry dialog fades its backdrop */
+.enq[open]::backdrop{animation:fade2 .35s ease both}@keyframes fade2{from{opacity:0}}
+/* phones and notches */
+.dock a{padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px))}
+footer{padding-bottom:calc(1.75rem + env(safe-area-inset-bottom,0px))}
+@media(max-width:960px){body{padding-bottom:calc(3.5rem + env(safe-area-inset-bottom,0px))}}
+@media(max-width:380px){.btn{padding-inline:1.1rem}.actions{gap:.6rem}.chips{gap:.4rem}.chip{padding-inline:.9rem}}
+/* big screens: a little more room and a touch more type */
+@media(min-width:1500px){:root{--w:1240px;--gut:clamp(2rem,5vw,6rem)}}
+@media(min-width:1900px){:root{--w:1360px}html{font-size:106%}}
+@media print{.prog{display:none!important}.rv,.rv-wipe img{opacity:1!important;transform:none!important;clip-path:none!important}}
