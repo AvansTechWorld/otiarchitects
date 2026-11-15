@@ -95,9 +95,9 @@ def dlg():
 def footer(R):
     ph = ''.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
     return (f'</main><footer><div class="wrap fg"><div>{img("logo-light.png", site["name"], R, "fl-logo")}<p>Nationally owned architects and project managers, {site["city"]}, Papua New Guinea.</p></div>'
-            f'<div><p class="fh">Navigation</p>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
-            f'<div><p class="fh">Contact</p><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
-            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><a href="{R}legal.html">Legal notice</a><button class="mt" type="button">Pause motion</button></div></footer>'
+            f'<div class="fn"><p class="fh">Navigation</p>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
+            f'<div class="fc"><p class="fh">Contact</p><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
+            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><a href="{R}legal.html">Legal notice</a><button class="mt" type="button">Pause animation</button></div></footer>'
             + dlg() + '<div class="curtain" aria-hidden="true"></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
@@ -137,9 +137,11 @@ MARK = ('<svg viewBox="0 0 840 590" role="img" aria-labelledby="mkt"><title id="
 def gallery(R):
     fp = [p for p in projects if p.get('featured')]
     sl = ''.join(f'<a class="slide" href="{R}projects/{p["slug"]}.html">{img(p["image"], p["alt"], R, lazy=(i > 0))}<div class="cap"><p class="meta"><span class="ref">{i+1:02d} / {len(fp):02d}</span><span>{E(p["type"])}</span><span>{E(p["statusLabel"])}</span></p><h3>{E(p["title"])}</h3><p class="where">{E(p["location"])}</p></div></a>' for i, p in enumerate(fp))
-    return (f'<section class="sec work"><div class="wrap"><div class="sh"><h2>Selected work.</h2><a class="link" href="{R}projects.html">View all projects</a></div></div>'
-            f'<div class="gal" id="gal" tabindex="0" role="region" aria-label="Selected projects, scroll sideways">{sl}</div>'
-            f'<div class="wrap"><div class="gal-ctl"><button type="button" id="galPrev" aria-label="Previous project">&larr;</button><button type="button" id="galNext" aria-label="Next project">&rarr;</button></div></div></section>')
+    more = f'<a class="slide more" href="{R}projects.html"><div class="mo"><p class="meta">Full portfolio</p><h3>See all {len(projects)} projects so far.</h3><p class="where">{E(site.get("workNote", ""))}</p><span class="btn light">View all projects</span></div></a>'
+    return (f'<section class="sec work"><div class="wrap"><div class="sh"><div><h2>Selected work.</h2><p class="note">{E(site.get("workNote", ""))}</p></div><a class="link" href="{R}projects.html">View all projects</a></div></div>'
+            f'<div class="gal" id="gal" tabindex="0" role="region" aria-label="Selected projects, scroll sideways">{sl}{more}</div>'
+            f'<div class="wrap"><div class="gal-bar"><div class="gal-ctl"><button type="button" id="galPrev" aria-label="Previous project">&larr;</button><button type="button" id="galNext" aria-label="Next project">&rarr;</button></div>'
+            f'<div class="gal-prog" aria-hidden="true"><span id="galBar"></span></div><p class="gal-count" id="galCount">01 / {len(fp):02d}</p></div></div></section>')
 def placeof(loc):
     for k in ('Port Moresby', 'Lae', 'Daru'):
         if k in loc: return k
@@ -180,7 +182,7 @@ def plist(R):
         live = p['status'] == 'current'
         return (f'<a class="row" href="{R}projects/{p["slug"]}.html" data-c="{p["type"].lower()}{" current" if live else ""}">{img(p["image"], p["alt"], R, "th")}<span class="ref">{i+1:02d}</span>'
                 f'<span class="tt"><h3>{E(p["title"])}</h3><small>{E(p["location"])}</small></span><span class="ty">{E(p["type"])}</span><span class="stx{" live" if live else ""}">{E(p["statusLabel"])}</span></a>')
-    return (PH(R, 'Projects', 'Projects.', 'Completed and current work across Port Moresby, Lae and Western Province. Select a project for its details.')
+    return (PH(R, 'Projects', 'Projects.', 'Completed and current work across Port Moresby, Lae and Western Province. Select a project for its details. ' + site.get('workNote', ''))
             + f'<section class="sec"><div class="wrap"><div class="bar2"><div class="chips" role="group" aria-label="Filter projects">{chips}</div>{views}</div><p id="count" class="sr" aria-live="polite"></p>'
             + f'<h2 class="sr">All projects</h2><div class="grid" id="vGrid">{"".join(card(p, i, R) for i, p in enumerate(projects))}</div><div class="idx" id="vList" hidden>{"".join(row(p, i) for i, p in enumerate(projects))}</div></div></section>' + cta(R))
 page('projects.html', f'Projects | {site["name"]}', f'Completed and current projects by {site["name"]} across Port Moresby, Lae and Western Province.', plist)

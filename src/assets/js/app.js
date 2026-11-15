@@ -22,7 +22,11 @@ vts.forEach(function(c){c.addEventListener('click',function(){
 /* ---------- selected-work gallery ---------- */
 var g=$('#gal');
 if(g){var step=function(d){var s=$('.slide',g);g.scrollBy({left:d*(s?s.getBoundingClientRect().width+16:320),behavior:'smooth'})};
- var pv=$('#galPrev'),nx=$('#galNext');if(pv)pv.addEventListener('click',function(){step(-1)});if(nx)nx.addEventListener('click',function(){step(1)});
+ var pv=$('#galPrev'),nx=$('#galNext'),gb=$('#galBar'),gc=$('#galCount'),gs=$$('.slide:not(.more)',g);
+ var sync=function(){var max=g.scrollWidth-g.clientWidth,x=g.scrollLeft;if(gb)gb.parentNode.style.setProperty('--gp',String(max>0?Math.max(.12,Math.min(1,(x+g.clientWidth*.35)/(max+g.clientWidth*.35))):1));
+  if(pv)pv.disabled=x<4;if(nx)nx.disabled=x>max-4;
+  if(gc&&gs.length){var o=gs[0].offsetLeft,k=0,b=1e9;gs.forEach(function(el,i){var dd=Math.abs(el.offsetLeft-o-x);if(dd<b){b=dd;k=i}});if(x>max-4&&max>0)k=gs.length-1;gc.textContent=(k+1<10?'0':'')+(k+1)+' / '+(gs.length<10?'0':'')+gs.length}};
+ g.addEventListener('scroll',function(){requestAnimationFrame(sync)},{passive:true});window.addEventListener('resize',sync);sync();if(pv)pv.addEventListener('click',function(){step(-1)});if(nx)nx.addEventListener('click',function(){step(1)});
  g.addEventListener('keydown',function(e){if(e.key==='ArrowRight'){e.preventDefault();step(1)}if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}})}
 
 /* ---------- enquiry form ---------- */

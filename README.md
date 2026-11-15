@@ -1,5 +1,7 @@
 # OTI Architects Ltd website
 
+> v4: hero height capped, projects slider with counter and "all projects" end card, even footer that clears the mobile Call/Email bar, aligned Pause animation button, `workNote` text in `content/site.json`.
+>
 > v3: softer scroll motion, legal notice page, `tools/dns_plan.py` (Cloudflare DNS and Gmail), `DEPLOY.md`, `COMPLIANCE.md`.
 
 A static website built from plain content files. Edit the content, push to `main`, and GitHub builds, checks and publishes it.
