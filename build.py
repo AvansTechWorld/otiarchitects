@@ -24,7 +24,7 @@ for t in team:
     need(t, ['name','role','img','bio'], f'team.json ({t.get("name","?")})')
     if not os.path.exists(f'{S}/assets/images/{t.get("img")}'): errors.append(f'team.json ({t.get("name")}): image {t.get("img")} not found')
 for c in clients:
-    if c.get('logo') and not os.path.exists(f'{S}/assets/images/{c["logo"]}'): errors.append(f'clients.json ({c.get("name")}): logo {c["logo"]} not found')
+    if c.get('logo') and not any(os.path.exists(f'{S}/assets/images/{pre}{c["logo"]}') for pre in ('', 'clients/')): errors.append(f'clients.json ({c.get("name")}): logo {c["logo"]} not found in src/assets/images or src/assets/images/clients')
 if errors: print('\n'.join('ERROR ' + e for e in errors)); sys.exit(1)
 # ---------------- helpers ----------------
 def dims(p):
@@ -48,6 +48,7 @@ if EP:
     _u = urlparse(EP)
     if _u.scheme != 'https' or not _u.netloc: errors.append('content/site.json: formEndpoint must be a full https:// address')
     else: EPO = f'{_u.scheme}://{_u.netloc}'; EPH = _u.netloc
+ENQ = ' data-enquire' if EP else ''
 MAIL = f'mailto:{EM}?subject=Project%20enquiry&body=Hello%20OTI%20Architects,%0D%0A%0D%0AMy%20name:%0D%0APhone:%0D%0AProject%20type:%0D%0ALocation:%0D%0ADescription:%0D%0A'
 CSP = "default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
 CSP = CSP.replace("connect-src 'none'", 'connect-src ' + (EPO or "'none'"))
@@ -70,8 +71,18 @@ def head(title, desc, R, path, home=False):
 def header(R, cur):
     nav = ''.join(f'<a href="{R}{h}"' + (' aria-current="page"' if h == cur else '') + f'>{l}</a>' for h, l in NAV)
     return (f'<header class="top"><div class="wrap bar"><a class="brand" href="{R}index.html" aria-label="{E(site["name"])}, home">{img("logo.png", site["name"] + ", " + site["tagline"], R, lazy=False)}</a>'
-            f'<nav id="nav" class="nav" aria-label="Main">{nav}</nav><a class="btn" href="{MAIL}" data-enquire>Start a project</a><button id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">Menu</button></div></header><main id="main">')
+            f'<nav id="nav" class="nav" aria-label="Main">{nav}</nav><a class="btn" href="{MAIL}"{ENQ}>Start a project</a><button id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">Menu</button></div></header><main id="main">')
+def mailpick():
+    ph = ' or '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
+    return (f'<dialog id="mp" class="enq mp" aria-labelledby="mpT" data-email="{E(EM)}"><div class="in"><button class="x" type="button" id="mpX" aria-label="Close">Close</button>'
+            f'<p class="kicker">Email us</p><h2 id="mpT">Where do you write your email?</h2>'
+            f'<p class="how">Pick one and your message opens ready to send. This choice is kept on your device only.</p>'
+            f'<div class="ways"><button class="btn out" type="button" data-mp="gmail">Gmail</button><button class="btn out" type="button" data-mp="outlook">Outlook</button>'
+            f'<button class="btn out" type="button" data-mp="app">Email app on this device</button><button class="btn out" type="button" data-mp="copy">Copy {E(EM)}</button></div>'
+            f'<p id="mpMsg" class="msg" role="status" aria-live="polite"></p><p class="alt2">Prefer to call? {ph}</p></div></dialog>')
+
 def dlg():
+    if not EP: return ''
     types = ['Residential', 'Commercial', 'Industrial', 'Institutional', 'Not sure yet']
     opts = ''.join(f'<option>{t}</option>' for t in types)
     ph = ' or '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
@@ -94,11 +105,11 @@ def dlg():
             f'<p class="alt2">Or call {ph}, or email <a href="mailto:{E(EM)}">{E(EM)}</a> <button class="cp" type="button" data-copy="{E(EM)}">Copy address</button></p></div></dialog>')
 def footer(R):
     ph = ''.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
-    return (f'</main><footer><div class="wrap fg"><div>{img("logo-light.png", site["name"], R, "fl-logo")}<p>Nationally owned architects and project managers, {site["city"]}, Papua New Guinea.</p></div>'
+    return (f'</main><footer><div class="wrap fg"><div>{img("logo-light.png", site["name"], R, "fl-logo")}<p>Nationally owned architects and project managers, {site["city"]}, Papua New Guinea.</p><p class="geo"><span class="tick" aria-hidden="true"><i></i><i></i><i></i></span>9.4438&deg; S, 147.1803&deg; E</p></div>'
             f'<div class="fn"><p class="fh">Navigation</p>{"".join("<a href='" + R + h + "'>" + l + "</a>" for h, l in NAV)}</div>'
-            f'<div class="fc"><p class="fh">Contact</p><a href="{MAIL}" data-enquire>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
-            f'<div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><a href="{R}legal.html">Legal notice</a><button class="mt" type="button">Pause animation</button></div></footer>'
-            + dlg() + '<div class="curtain" aria-hidden="true"></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}" data-enquire>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
+            f'<div class="fc"><p class="fh">Contact</p><a href="{MAIL}"{ENQ}>{EM}</a>{ph}<p>{E(site["postal"])}</p></div></div>'
+            f'{TAPA}<div class="wrap bw" aria-hidden="true"><div class="bigword">OTI</div></div><div class="wrap fl"><span>&copy; {YEAR} {E(site["name"])}</span><a href="{R}privacy.html">Privacy and security</a><a href="{R}legal.html">Legal notice</a><button class="mt" type="button">Pause animation</button></div></footer>'
+            + dlg() + mailpick() + '<div class="curtain" aria-hidden="true"></div>' + f'<nav class="dock" aria-label="Quick contact"><a href="tel:{site["phones"][0]["tel"]}">Call</a><a href="{MAIL}"{ENQ}>Email</a></nav><script src="{R}assets/js/app.js" defer></script></body></html>')
 def page(path, title, desc, body, cur=None, home=False):
     R = BASE if path == '404.html' else '../' * path.count('/')
     out = f'{DIST}/{path}'; os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -107,7 +118,7 @@ def ph(crumb, h1, lead):
     return f'<div class="ph"><div class="wrap"><p class="crumb"><a href="{{R}}index.html">Home</a> / {crumb}</p><h1>{h1}</h1><p class="lead">{lead}</p></div></div>'
 def PH(R, crumb, h1, lead): return ph(crumb, h1, lead).replace('{R}', R)
 def cta(R, h='Have a project in mind?', t='Email us a short description of your project, its location and your timeline.'):
-    return f'<div class="band"><div class="wrap"><h2>{h}</h2><p class="lead">{t}</p><div class="actions"><a class="btn light" href="{MAIL}" data-enquire>Email {E(site["short"])}</a><a class="btn ghost" href="{R}projects.html">View projects</a></div></div></div>'
+    return f'<div class="band"><div class="wrap"><h2>{h}</h2><p class="lead">{t}</p><div class="actions"><a class="btn light" href="{MAIL}"{ENQ}>Email {E(site["short"])}</a><a class="btn ghost" href="{R}projects.html">View projects</a></div><p class="tok">Kam toktok wantaim mipela. <span>Come and talk with us.</span></p></div>{TAPA}</div>'
 LEAD = lambda t: '<p class="lead">' + E(t) + '</p>'
 ND = '<div class="nd" aria-hidden="true"></div>'
 def card(p, i, R):
@@ -152,19 +163,42 @@ def places(R):
     order = sorted(g.items(), key=lambda kv: -len(kv[1]))
     cells = ''.join(f'<div class="place reveal"><i>{len(v):02d}</i><b>{E(k)}</b><span>{E(", ".join(sorted({q["type"] for q in v})))}</span></div>' for k, v in order)
     return f'<section class="sec tint"><div class="wrap"><h2>Where we have built.</h2><p class="lead">From the capital to the provinces: projects by place, drawn from the portfolio.</p><div class="places">{cells}</div></div></section>'
+
+def slugify(t): return re.sub(r'[^a-z0-9]+', '-', t.lower()).strip('-')
+def client_logo(c):
+    """Logo file for a client: the "logo" field if set, else src/assets/images/clients/<name-as-slug>.(svg|png|webp|jpg)."""
+    l = (c.get('logo') or '').strip()
+    if l:
+        for pre in ('', 'clients/'):
+            if os.path.exists(f'{S}/assets/images/{pre}{l}'): return pre + l
+    for ext in ('svg', 'png', 'webp', 'jpg', 'jpeg'):
+        f = f'clients/{slugify(c["name"])}.{ext}'
+        if os.path.exists(f'{S}/assets/images/{f}'): return f
+    return ''
+def clients_html(R):
+    cells = []
+    for c in clients:
+        lg = client_logo(c); nm = E(c['name'])
+        art = f'<span class="lg">{img(lg, "", R)}</span>' if lg else f'<span class="lg mono" aria-hidden="true">{E("".join(w[0] for w in c["name"].split()[:2]).upper())}</span>'
+        cells.append(f'<li class="client">{art}<span class="nm">{nm}</span></li>')
+    return '<ul class="clients">' + ''.join(cells) + '</ul>'
+def marquee():
+    items = list(site['sectors']) + [k for k in dict.fromkeys(placeof(p['location']) for p in projects)]
+    one = ''.join(f'<span>{E(t)}</span><i></i>' for t in items)
+    return f'<div class="marq" aria-hidden="true"><div class="trk"><div class="set">{one}</div><div class="set">{one}</div></div></div>'
+TAPA = '<div class="tapa" aria-hidden="true"></div>'
 def home(R):
     h = site['hero']; svcs = ''.join(f'<div class="svc reveal"><span class="n">{n+1:02d}</span><h3>{E(s["title"])}</h3><p>{E(s["text"])}</p></div>' for n, s in enumerate(services))
     feat = ''.join(card(p, projects.index(p), R) for p in projects if p.get('featured'))
-    cl = ''.join(f'<div class="client">{img(c["logo"], c["name"], R) if c.get("logo") else E(c["name"])}</div>' for c in clients)
     facts = ''.join(f'<div class="fact"><b>{E(f["b"])}</b><span>{E(f["s"])}</span></div>' for f in site['facts'])
     fig = f'<figure class="fig">{img("lae-central.jpg", "Lae Central Complex, a yellow market building with sharp pitched roof forms", R)}{img("atrium.jpg", "Glazed barrel-vault atrium in an OTI project", R, "ins")}<figcaption>Lae Central Complex, 1987. Design architect Alama Oti.</figcaption></figure>'
-    return (f'<div class="hero"><div class="wrap hero-grid"><div><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn" href="{MAIL}" data-enquire>Email us about your project</a><a class="btn line" href="{R}projects.html">View projects</a></div></div>'
+    return (f'<div class="hero"><div class="wrap hero-grid"><div><p class="kicker kk"><span class="tick" aria-hidden="true"><i></i><i></i><i></i></span>Architects in {E(site["city"])}, Papua New Guinea</p><h1>{E(h["title"])}</h1><p class="sub">{E(h["sub"])}</p><div class="actions"><a class="btn" href="{MAIL}"{ENQ}>Email us about your project</a><a class="btn line" href="{R}projects.html">View projects</a></div></div>'
             f'<figure class="mark">{DRAW.replace("@R@", R).replace("@CITY@", E(site["city"]))}<figcaption>Workers Mutual Centre, 2001</figcaption></figure></div></div>'
-            f'<div class="facts"><div class="wrap">{facts}</div></div>'
+            f'<div class="facts"><div class="wrap">{facts}</div></div>{marquee()}'
             f'<section class="sec"><div class="wrap split"><div><h2>Working together is how we build.</h2>{"".join(LEAD(t) for t in site["aboutShort"])}<p><a class="link" href="{R}about.html">About OTI Architects</a></p></div>{fig}</div></section>{ND}'
             f'<section id="services" class="sec tint"><div class="wrap"><h2>Our services.</h2><p class="lead">Residential, industrial, commercial and institutional projects, in one or more of the following services.</p><div class="svcs">{svcs}</div></div></section>'
             f'{gallery(R)}{places(R)}'
-            f'<section class="sec"><div class="wrap"><h2>Clients we have worked for.</h2><div class="clients">{cl}</div></div></section>' + cta(R))
+            f'<section class="sec"><div class="wrap"><h2>Clients we have worked for.</h2>{clients_html(R)}</div></section>' + cta(R))
 page('index.html', f'{site["short"]} | Architects in {site["city"]}, PNG', f'Nationally owned architects and project managers in {site["city"]}. Residential, commercial, industrial and institutional buildings across PNG since 1996.', home, home=True)
 def about(R):
     tl = ''.join(f'<li class="reveal"><b>{E(t["y"])}</b>{E(t["t"])}</li>' for t in site['timeline']); cr = ''.join(f'<div class="reveal"><b>{E(c["b"])}</b>{E(c["t"])}</div>' for c in site['credentials'])
@@ -194,7 +228,7 @@ for i, p in enumerate(projects):
         prev = projects[i-1]; nxt = projects[(i+1) % len(projects)]
         return (PH(R, f'<a href="{R}projects.html">Projects</a> / {E(p["title"])}', E(p['title']), f'{E(p["type"])} project in {E(p["location"])}.')
                 + f'<section class="sec"><div class="wrap"><div class="sheet">{img(p["image"], p["alt"], R, lazy=False)}</div><div class="tb">{tb}</div>'
-                + f'<nav class="pn" aria-label="Other projects"><a class="link" href="{R}projects/{prev["slug"]}.html">Previous: {E(prev["title"])}</a><a class="link" href="{R}projects/{nxt["slug"]}.html">Next: {E(nxt["title"])}</a></nav></div></section>'
+                + f'<nav class="pn" aria-label="Other projects"><a class="link prv" href="{R}projects/{prev["slug"]}.html">Previous: {E(prev["title"])}</a><a class="nextp" href="{R}projects/{nxt["slug"]}.html">{img(nxt["image"], "", R)}<span class="lbl">Next project &middot; {(i+1)%len(projects)+1:02d} / {len(projects):02d}</span><b>{E(nxt["title"])}</b><span class="arr" aria-hidden="true">&rarr;</span></a></nav></div></section>'
                 + (f'<section class="sec tint"><div class="wrap"><h2>Related projects.</h2><div class="grid">{"".join(card(q, projects.index(q), R) for q in rel)}</div></div></section>' if rel else '') + cta(R))
     page(f'projects/{p["slug"]}.html', f'{p["title"]} | {site["name"]}', f'{p["title"]}, {p["type"].lower()} project in {p["location"]} by {site["name"]}.', body, cur='projects.html')
 def tpage(R):
@@ -204,13 +238,13 @@ page('team.html', f'Team | {site["name"]}', f'Meet the architects of {site["name
 def cpage(R):
     ph_ = ' / '.join(f'<a href="tel:{p["tel"]}">{p["label"]}</a>' for p in site['phones'])
     return (PH(R, 'Contact', 'Contact us.', 'Tell us about your project, its location and your timeline. We reply by phone or email.')
-            + f'<section class="sec"><div class="wrap"><p><a class="btn big" href="{MAIL}" data-enquire>Start a project</a></p>'
-            + f'<ul class="cd"><li><small>Email</small><a href="{MAIL}" data-enquire>{EM}</a></li><li><small>Phone</small>{ph_}</li><li><small>Postal</small><strong>{E(site["postal"])}</strong></li></ul></div></section>')
+            + f'<section class="sec"><div class="wrap"><p><a class="btn big" href="{MAIL}"{ENQ}>Start a project</a></p>'
+            + f'<ul class="cd"><li><small>Email</small><a href="{MAIL}"{ENQ}>{EM}</a> <button class="cp" type="button" data-mpchoose>Choose Gmail, Outlook or app</button></li><li><small>Phone</small>{ph_}</li><li><small>Postal</small><strong>{E(site["postal"])}</strong></li></ul></div></section>')
 page('contact.html', f'Contact | {site["name"]}', f'Contact {site["name"]} in {site["city"]} to discuss your project.', cpage)
 CDNNOTE = ' and delivered through Cloudflare, which processes visitors\u2019 IP addresses to deliver pages quickly and to block attacks' if site.get('cdn') == 'cloudflare' else ''
 def priv(R):
     return (PH(R, 'Privacy', 'Privacy and data security.', f'Last updated {datetime.date.today():%d %B %Y}.')
-        + f'''<section class="sec"><div class="wrap prose"><h2>What this website collects</h2><p>Nothing is collected automatically. This website has no accounts, no cookies, no analytics, no advertising and no third-party scripts, fonts or images. Everything you see is served from this site.</p>
+        + f'''<section class="sec"><div class="wrap prose"><h2>What this website collects</h2><p>Nothing is collected automatically. This website has no accounts, no cookies, no analytics, no advertising and no third-party scripts, fonts or images. Everything you see is served from this site. Your browser keeps two small settings on your own device only: whether you paused the animation, and which email service (Gmail, Outlook or your email app) you picked. They are never sent to us or anyone else.</p>
 <h2>When you contact us</h2><p>{E(FORMNOTE)}</p><p>If you email or phone us we receive the details you choose to send, such as your name, contact details and project information. We use them only to answer your enquiry and to deliver the project, and we do not sell or share them for marketing. To ask us to delete your emails, write to <a href="mailto:{EM}">{EM}</a>.</p>
 <p>Email travels through your own email provider, so please do not send passwords or bank details by email.</p>
 <h2>Hosting</h2><p>The website is hosted on a static web host{CDNNOTE}. Like most hosts it may keep standard technical logs, such as IP address, time and page requested, for security and reliability. These logs are not used to identify or profile visitors.</p>

@@ -1,5 +1,9 @@
 # OTI Architects Ltd website
 
+> v5: client logos by file name (see content/README-clients.md), flowing sector band, subtle Papua New Guinea motifs (tapa-inspired strip, flag-colour tick, coordinates, one line of Tok Pisin), outline footer wordmark, big next-project banner and a soft "View" pointer on desktop.
+>
+> v4.2: every email link opens a ready-written message straight in Gmail or Outlook on desktop (first click asks once, then remembers on that device) and in the device's mail app on phones. The enquiry form dialog now appears only if `formEndpoint` is set.
+>
 > v4: hero height capped, projects slider with counter and "all projects" end card, even footer that clears the mobile Call/Email bar, aligned Pause animation button, `workNote` text in `content/site.json`.
 >
 > v3: softer scroll motion, legal notice page, `tools/dns_plan.py` (Cloudflare DNS and Gmail), `DEPLOY.md`, `COMPLIANCE.md`.

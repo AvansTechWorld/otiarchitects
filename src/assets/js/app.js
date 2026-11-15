@@ -19,6 +19,35 @@ vts.forEach(function(c){c.addEventListener('click',function(){
  vts.forEach(function(x){var on=x===c;x.classList.toggle('on',on);x.setAttribute('aria-pressed',String(on))});
  var list=c.getAttribute('data-v')==='list';$('#vGrid').hidden=list;$('#vList').hidden=!list})});
 
+/* ---------- email links: straight to Gmail, Outlook or the device's mail app ---------- */
+var mp=$('#mp');
+if(mp){
+ var touch=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches),cur=null,K='oti-mail',q=encodeURIComponent;
+ var pref=function(v){try{if(v)localStorage.setItem(K,v);else return localStorage.getItem(K)}catch(e){}return null};
+ var info=function(href){var u=new URL(href);return{to:decodeURIComponent(u.pathname),su:u.searchParams.get('subject')||'',bd:u.searchParams.get('body')||'',href:href}};
+ var say=function(t,err){var m=$('#mpMsg');m.textContent=t||'';m.className='msg'+(err?' err':'')};
+ var copyTxt=function(t,ok,bad){var fb=function(){var a=document.createElement('textarea');a.value=t;a.className='sr';document.body.appendChild(a);a.select();var r=false;try{r=document.execCommand('copy')}catch(e){}a.remove();r?ok():bad()};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,fb)}else fb()};
+ var shut=function(){if(typeof mp.close==='function')mp.close();else mp.removeAttribute('open');document.documentElement.classList.remove('lock')};
+ var ask=function(m){cur=m;say('');var nm=$('#nav');if(nm)nm.classList.remove('open');
+  if(typeof mp.showModal==='function'){if(!mp.open)mp.showModal()}else mp.setAttribute('open','');
+  document.documentElement.classList.add('lock');var f=$('[data-mp]',mp);if(f)setTimeout(function(){f.focus()},30)};
+ var go=function(w,m){
+  if(w==='gmail')window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+q(m.to)+'&su='+q(m.su)+'&body='+q(m.bd),'_blank','noopener');
+  else if(w==='outlook')window.open('https://outlook.office.com/mail/deeplink/compose?to='+q(m.to)+'&subject='+q(m.su)+'&body='+q(m.bd),'_blank','noopener');
+  else location.href=m.href};
+ mp.addEventListener('close',function(){document.documentElement.classList.remove('lock')});
+ mp.addEventListener('click',function(e){if(e.target===mp)shut()});$('#mpX').addEventListener('click',shut);
+ $$('[data-mp]',mp).forEach(function(b){b.addEventListener('click',function(){var w=b.getAttribute('data-mp'),m=cur||info($('a[href^="mailto:"]').href);
+  if(w==='copy'){copyTxt(m.to,function(){say('Copied. Paste '+m.to+' into any email.')},function(){say('Copy was blocked. Please email '+m.to+' directly.',true)});return}
+  pref(w);shut();go(w,m)})});
+ /* phones and tablets: the installed mail app (often Gmail or Outlook) is the best handler, so leave mailto alone */
+ if(touch)$$('[data-mpchoose]').forEach(function(b){b.hidden=true});
+ $$('[data-mpchoose]').forEach(function(b){b.addEventListener('click',function(){var a=$('a[href^="mailto:"]');if(a)ask(info(a.href))})});
+ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="mailto:"]');
+  if(!a||touch||a.hasAttribute('data-enquire')||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
+  e.preventDefault();var m=info(a.href),w=pref();if(w==='gmail'||w==='outlook'||w==='app')go(w,m);else ask(m)})}
+
 /* ---------- selected-work gallery ---------- */
 var g=$('#gal');
 if(g){var step=function(d){var s=$('.slide',g);g.scrollBy({left:d*(s?s.getBoundingClientRect().width+16:320),behavior:'smooth'})};
@@ -105,6 +134,16 @@ function req(){if(!tick){tick=true;requestAnimationFrame(frame)}}
 W.addEventListener('scroll',req,{passive:true});W.addEventListener('resize',req);req();
 function shift(){var vw=W.innerWidth;slides.forEach(function(im){var b=im.parentNode.getBoundingClientRect();im.style.setProperty('--px',(((b.left+b.width/2-vw/2)/vw)*-60)+'px')})}
 if(gal&&!rm){gal.addEventListener('scroll',function(){requestAnimationFrame(shift)},{passive:true});shift()}
+/* pointer label: a soft "View" disc follows the mouse over large project images */
+if(!rm&&W.matchMedia('(pointer:fine)').matches){
+ var cu=d.createElement('div');cu.className='cur';cu.setAttribute('aria-hidden','true');cu.textContent='View';d.body.appendChild(cu);
+ var tx=0,ty=0,cx=0,cy=0,run=false,over='a.slide:not(.more),a.card .im,a.nextp';
+ var loop=function(){cx+=(tx-cx)*.2;cy+=(ty-cy)*.2;cu.style.setProperty('--cx',cx.toFixed(1)+'px');cu.style.setProperty('--cy',cy.toFixed(1)+'px');
+  if(Math.abs(tx-cx)>.3||Math.abs(ty-cy)>.3)requestAnimationFrame(loop);else run=false};
+ d.addEventListener('pointermove',function(e){tx=e.clientX;ty=e.clientY;if(!run){run=true;requestAnimationFrame(loop)}
+  var on=!!(e.target.closest&&e.target.closest(over))&&!(gal&&gal.classList.contains('drag'));cu.classList.toggle('on',on)},{passive:true});
+ d.addEventListener('pointerleave',function(){cu.classList.remove('on')});
+ W.addEventListener('blur',function(){cu.classList.remove('on')})}
 /* pointer: hero follows the mouse; gallery drags */
 if(!rm&&W.matchMedia('(pointer:fine)').matches){
  if(hero)hero.addEventListener('pointermove',function(e){hero.style.setProperty('--mx',(e.clientX/W.innerWidth*2-1).toFixed(3));hero.style.setProperty('--my',(e.clientY/W.innerHeight*2-1).toFixed(3))});
